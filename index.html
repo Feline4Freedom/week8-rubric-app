@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apply the Rubric · Week 8 Pair Exercise · IMAPA Techno-Geopolitics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #1E2761;
+  --navy-light: #2F3C7E;
+  --gold: #FFB800;
+  --gold-light: #FFE08A;
+  --cream: #FAF7F2;
+  --paper: #FFFFFF;
+  --ink: #1A1F36;
+  --ink-soft: #4A5168;
+  --border: #E5E2DC;
+  --green: #2C7A4D;
+  --red: #B23A48;
+  --amber: #C77700;
+  --blue: #265E9E;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px; line-height: 1.55;
+  color: var(--ink); background: var(--cream);
+}
+.zh { font-family: 'Noto Sans TC', 'Inter', sans-serif; }
+
+/* ============ Header ============ */
+header {
+  background: var(--navy); color: white;
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky; top: 0; z-index: 100;
+}
+header h1 {
+  margin: 0; font-size: 1.1rem; font-weight: 600;
+  display: flex; align-items: center; gap: .5rem;
+}
+header h1 .badge {
+  background: var(--gold); color: var(--navy);
+  padding: .15rem .5rem; border-radius: 3px;
+  font-size: .75rem; font-weight: 700; letter-spacing: .04em;
+}
+header h1 .sub { opacity: .7; font-weight: 400; font-size: .95rem; }
+header .controls { display: flex; gap: 1rem; align-items: center; }
+header .timer {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 1.4rem; font-weight: 600;
+  background: rgba(255,255,255,0.1); padding: .35rem 1rem; border-radius: 4px;
+  letter-spacing: .05em;
+  cursor: pointer; user-select: none;
+}
+header .timer.running { background: var(--gold); color: var(--navy); }
+header .timer.warn { background: var(--red); color: white; animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .7; } }
+header .lang-toggle, header button.head-btn {
+  background: transparent; color: white; border: 1px solid rgba(255,255,255,.3);
+  padding: .35rem .75rem; border-radius: 4px; font-size: .85rem;
+  cursor: pointer; transition: all .15s;
+}
+header button:hover { background: rgba(255,255,255,.1); }
+
+/* ============ Phase tabs ============ */
+.phase-tabs {
+  background: white; border-bottom: 1px solid var(--border);
+  display: flex; padding: 0 2rem;
+}
+.phase-tab {
+  padding: .9rem 1.25rem;
+  font-weight: 600; color: var(--ink-soft);
+  border-bottom: 3px solid transparent;
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: .5rem;
+  transition: all .15s;
+}
+.phase-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+.phase-tab .num {
+  background: var(--cream); color: var(--ink-soft);
+  width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 700;
+}
+.phase-tab.active .num { background: var(--gold); color: var(--navy); }
+.phase-tab.done .num { background: var(--green); color: white; }
+.phase-tab .duration { font-size: .75rem; opacity: .6; font-weight: 400; }
+
+/* ============ Main layout ============ */
+main {
+  max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem;
+}
+.welcome-card {
+  background: white; padding: 2rem; border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.welcome-card h2 {
+  margin-top: 0; color: var(--navy); font-size: 1.6rem;
+  border-bottom: 2px solid var(--gold); padding-bottom: .5rem; display: inline-block;
+}
+.welcome-card p { color: var(--ink-soft); }
+.welcome-card .features {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem; margin-top: 1.5rem;
+}
+.welcome-card .feature-item {
+  padding: 1rem; background: var(--cream); border-radius: 6px;
+  border-left: 3px solid var(--gold);
+}
+.welcome-card .feature-item strong { display: block; color: var(--navy); margin-bottom: .25rem; }
+.welcome-card .feature-item small { color: var(--ink-soft); }
+
+/* ============ Case grid ============ */
+.case-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem; margin-top: 1rem;
+}
+.case-card {
+  background: white; border: 1px solid var(--border); border-radius: 8px;
+  padding: 1.25rem; cursor: pointer; transition: all .15s;
+  position: relative;
+}
+.case-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); border-color: var(--gold); }
+.case-card.selected { border-color: var(--navy); border-width: 2px; }
+.case-card .country {
+  font-size: .75rem; color: var(--gold); font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.case-card .country-zh { color: var(--ink-soft); font-weight: 500; letter-spacing: 0; }
+.case-card h3 { margin: .35rem 0 .25rem; color: var(--navy); font-size: 1.05rem; }
+.case-card .title-zh { color: var(--ink); font-size: .95rem; font-weight: 500; margin-bottom: .5rem; }
+.case-card .subtitle { color: var(--ink-soft); font-size: .85rem; line-height: 1.4; }
+
+/* ============ Case detail layout ============ */
+.workspace {
+  display: grid; grid-template-columns: 1.05fr 1fr; gap: 1.25rem;
+}
+@media (max-width: 1100px) { .workspace { grid-template-columns: 1fr; } }
+
+.case-panel, .scoring-panel {
+  background: white; border: 1px solid var(--border); border-radius: 8px;
+  padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.case-panel h2 {
+  margin: 0 0 .25rem; color: var(--navy); font-size: 1.5rem;
+}
+.case-panel h2.zh { font-size: 1.2rem; color: var(--ink); margin-bottom: .25rem; font-weight: 500; }
+.case-panel .case-meta {
+  font-size: .85rem; color: var(--ink-soft); padding-bottom: .75rem; border-bottom: 1px solid var(--border);
+}
+.case-panel .case-meta span { margin-right: 1.5rem; }
+.case-panel section { margin: 1rem 0; }
+.case-panel section h4 {
+  font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold); margin: 1rem 0 .5rem;
+  border-left: 3px solid var(--gold); padding-left: .5rem;
+}
+.case-panel .summary {
+  font-size: .95rem; padding: .75rem 1rem; background: var(--cream); border-radius: 4px;
+}
+.case-panel .summary.zh { font-size: .9rem; color: var(--ink-soft); margin-top: .5rem; }
+.case-panel .timeline-item {
+  display: grid; grid-template-columns: 90px 1fr; gap: .75rem;
+  padding: .35rem 0; font-size: .9rem;
+}
+.case-panel .timeline-item .yr { font-weight: 600; color: var(--navy); }
+.case-panel .kpi-list, .case-panel .firm-list, .case-panel .instrument-list {
+  margin: 0; padding-left: 1.25rem;
+}
+.case-panel .kpi-list li, .case-panel .firm-list li, .case-panel .instrument-list li {
+  margin: .35rem 0; font-size: .9rem;
+}
+.case-panel .commentary {
+  border-left: 3px solid; padding: .65rem 1rem; margin: .65rem 0;
+  background: rgba(0,0,0,0.015);
+  font-size: .9rem;
+}
+.commentary[data-stance="Pro-IP"] { border-color: var(--green); }
+.commentary[data-stance="Skeptical"], .commentary[data-stance="Skeptic-Multilateralist"] { border-color: var(--red); }
+.commentary[data-stance="Conditional"], .commentary[data-stance="Pro-IP / Conditional"], .commentary[data-stance="Skeptical / Conditional"], .commentary[data-stance="Conditional / Chokepoint"] { border-color: var(--amber); }
+.commentary[data-stance="Neutral"], .commentary[data-stance="Evidence"] { border-color: var(--blue); }
+.commentary .source {
+  font-size: .75rem; font-weight: 600; color: var(--ink-soft);
+  display: flex; justify-content: space-between; margin-top: .35rem;
+}
+.commentary .stance-tag {
+  background: var(--cream); padding: .1rem .4rem; border-radius: 3px;
+  font-size: .7rem;
+}
+
+/* ============ Scoring panel ============ */
+.scoring-panel h3 {
+  margin: 0 0 .75rem; color: var(--navy); font-size: 1.15rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.scoring-panel .pair-id {
+  font-size: .75rem; color: var(--ink-soft); font-weight: 400;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+.criterion-block {
+  margin: 1rem 0; padding: 1rem; background: var(--cream); border-radius: 6px;
+  border-left: 3px solid var(--gold);
+}
+.criterion-block .crit-title {
+  font-weight: 700; color: var(--navy); font-size: 1rem; margin-bottom: .15rem;
+}
+.criterion-block .crit-title-zh { color: var(--ink); font-weight: 500; font-size: .9rem; }
+.criterion-block .crit-desc {
+  font-size: .8rem; color: var(--ink-soft); margin: .35rem 0 .65rem;
+}
+.criterion-block .crit-question {
+  font-size: .8rem; font-style: italic; color: var(--navy); margin: .35rem 0;
+}
+.score-row {
+  display: flex; gap: .75rem; align-items: center; margin: .5rem 0;
+}
+.score-row label { font-weight: 600; min-width: 60px; }
+.score-row .verdict {
+  display: flex; gap: .25rem;
+}
+.score-row .verdict button {
+  width: 36px; height: 36px; border: 2px solid var(--border); background: white;
+  border-radius: 4px; cursor: pointer; font-weight: 700; transition: all .1s;
+  font-family: inherit; color: var(--ink);
+}
+.score-row .verdict button:hover { border-color: var(--gold); }
+.score-row .verdict button.active {
+  background: var(--navy); color: white; border-color: var(--navy);
+}
+.score-row .score-help {
+  font-size: .7rem; color: var(--ink-soft); margin-left: .5rem;
+}
+.criterion-block textarea {
+  width: 100%; min-height: 60px; padding: .5rem .75rem;
+  border: 1px solid var(--border); border-radius: 4px;
+  font-family: inherit; font-size: .85rem; resize: vertical;
+  background: white; color: var(--ink);
+}
+.criterion-block textarea:focus { outline: 2px solid var(--gold); }
+
+/* ============ Radar chart ============ */
+.radar-card {
+  background: white; border: 1px solid var(--border); border-radius: 8px;
+  padding: 1rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  margin-top: 1.25rem;
+}
+.radar-card h3 { margin: 0 0 .5rem; color: var(--navy); font-size: 1.05rem; }
+.radar-card .chart-wrap {
+  position: relative; height: 360px;
+}
+.radar-card .summary-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .75rem;
+  margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--border);
+}
+.radar-card .stat {
+  text-align: center; padding: .35rem;
+}
+.radar-card .stat .num { font-size: 1.3rem; font-weight: 700; color: var(--navy); }
+.radar-card .stat .lbl { font-size: .75rem; color: var(--ink-soft); }
+.radar-card.compare canvas { /* show legend */ }
+
+/* ============ Action bar ============ */
+.action-bar {
+  position: sticky; bottom: 0; background: white;
+  border-top: 1px solid var(--border);
+  padding: 1rem 2rem; margin-top: 1.5rem;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+  border-radius: 8px 8px 0 0;
+}
+.action-bar .left, .action-bar .right { display: flex; gap: .65rem; align-items: center; }
+button.btn {
+  padding: .55rem 1rem; border-radius: 4px; border: 1px solid var(--border);
+  background: white; color: var(--navy); cursor: pointer; font-weight: 600;
+  font-family: inherit; font-size: .9rem; transition: all .12s;
+}
+button.btn:hover { background: var(--cream); }
+button.btn.primary { background: var(--navy); color: white; border-color: var(--navy); }
+button.btn.primary:hover { background: var(--navy-light); }
+button.btn.gold { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+button.btn.danger { color: var(--red); border-color: var(--red); }
+button.btn.disabled { opacity: .4; cursor: not-allowed; }
+
+.notice {
+  padding: 1rem 1.25rem; background: #FFF3D6; border-left: 4px solid var(--gold);
+  border-radius: 4px; margin: 1rem 0; font-size: .9rem;
+}
+.notice.error { background: #FBE9E9; border-color: var(--red); }
+.notice.success { background: #E6F4EC; border-color: var(--green); }
+.notice strong { color: var(--navy); }
+
+/* ============ Modal ============ */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center; z-index: 200;
+  padding: 1rem;
+}
+.modal {
+  background: white; border-radius: 8px; padding: 2rem;
+  max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0,0,0,.2);
+}
+.modal h3 { margin-top: 0; color: var(--navy); }
+.modal .share-link, .modal .share-code {
+  width: 100%; padding: .65rem; border: 1px solid var(--border); border-radius: 4px;
+  font-family: 'SF Mono', Menlo, monospace; font-size: .8rem;
+  background: var(--cream); margin: .5rem 0;
+  word-break: break-all;
+}
+.modal .share-code { min-height: 80px; }
+.modal-actions {
+  display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem;
+}
+
+/* ============ Stress-test mode ============ */
+.stress-test-side {
+  background: #F4F1EA; border-radius: 8px; padding: 1.25rem;
+}
+.stress-test-side .other-pair-id {
+  font-family: 'SF Mono', Menlo, monospace;
+  background: var(--navy); color: white; padding: .25rem .5rem; border-radius: 3px;
+  font-size: .8rem;
+}
+.critique-input {
+  margin-top: .5rem; width: 100%; min-height: 50px;
+  padding: .5rem; border: 1px solid var(--border); border-radius: 4px;
+  font-family: inherit; font-size: .85rem;
+}
+.critique-input:focus { outline: 2px solid var(--red); }
+.compare-row {
+  display: grid; grid-template-columns: 30px 1fr; gap: .5rem;
+  padding: .35rem 0;
+}
+.compare-row .num-display {
+  background: var(--navy); color: white; width: 28px; height: 28px;
+  border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+}
+
+/* ============ Report mode ============ */
+.report-card {
+  background: white; border: 1px solid var(--border); border-radius: 8px;
+  padding: 2rem; margin-top: 1rem;
+}
+.report-card h2 { margin-top: 0; color: var(--navy); }
+.report-script {
+  background: var(--cream); padding: 1.25rem; border-radius: 4px;
+  border-left: 4px solid var(--gold); margin-top: 1rem;
+  font-size: .95rem; line-height: 1.7;
+}
+.report-script .highlight { background: var(--gold-light); padding: 0 .25rem; }
+.weakest-pick {
+  display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem;
+}
+.weakest-pick button {
+  padding: .5rem 1rem; border: 2px solid var(--border); background: white;
+  border-radius: 4px; cursor: pointer; font-family: inherit;
+  font-size: .85rem; transition: all .1s;
+}
+.weakest-pick button.selected {
+  background: var(--red); color: white; border-color: var(--red);
+}
+
+/* ============ Footer ============ */
+footer {
+  text-align: center; padding: 2rem 1rem 4rem;
+  font-size: .8rem; color: var(--ink-soft);
+}
+
+/* ============ Animations ============ */
+.fade-in { animation: fadeIn .25s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>
+    <span class="badge">WEEK 8</span>
+    Apply the Rubric
+    <span class="sub" id="subtitle"> · Pair Exercise · Industrial Policy as National Power</span>
+  </h1>
+  <div class="controls">
+    <div class="timer" id="timer" title="Click to start/pause; right-click to reset">15:00</div>
+    <button class="lang-toggle" id="langToggle">中/EN</button>
+  </div>
+</header>
+
+<nav class="phase-tabs">
+  <div class="phase-tab active" data-phase="select">
+    <span class="num">·</span> <span data-i18n="phase-select">Choose Case</span>
+  </div>
+  <div class="phase-tab" data-phase="score">
+    <span class="num">1</span> <span data-i18n="phase-score">Score</span>
+    <span class="duration">15 min</span>
+  </div>
+  <div class="phase-tab" data-phase="stress">
+    <span class="num">2</span> <span data-i18n="phase-stress">Stress-test</span>
+    <span class="duration">5 min</span>
+  </div>
+  <div class="phase-tab" data-phase="report">
+    <span class="num">3</span> <span data-i18n="phase-report">Report</span>
+    <span class="duration">5 min</span>
+  </div>
+</nav>
+
+<main id="main">
+  <!-- Content rendered by JS -->
+</main>
+
+<div id="modalContainer"></div>
+
+<footer>
+  CAPS 619 · Globalization Studies · Techno-Geopolitics · IMAPA, NSYSU<br>
+  <small>Built for Week 8 — Industrial Policy as National Power. Open source. Edit cases.js to add your own.</small>
+</footer>
+
+<script src="cases.js"></script>
+<script>
+// ============================================================
+// State
+// ============================================================
+const state = {
+  lang: localStorage.getItem('w8_lang') || 'en',
+  phase: 'select',
+  caseId: null,
+  pairId: localStorage.getItem('w8_pairId') || generatePairId(),
+  scores: {},          // { criterionId: 1..5 }
+  justifications: {},  // { criterionId: text }
+  weakest: null,       // criterion id
+  otherPair: null,     // imported state from another pair
+  critiques: {},       // { criterionId: text } (in stress-test phase)
+  timerSec: 15 * 60,
+  timerRunning: false,
+};
+localStorage.setItem('w8_pairId', state.pairId);
+
+function generatePairId() {
+  return 'P-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+}
+
+// Load saved state for current case
+function saveLocal() {
+  if (!state.caseId) return;
+  localStorage.setItem('w8_state_' + state.caseId, JSON.stringify({
+    scores: state.scores,
+    justifications: state.justifications,
+    weakest: state.weakest,
+    pairId: state.pairId
+  }));
+}
+function loadLocal(caseId) {
+  const raw = localStorage.getItem('w8_state_' + caseId);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch(e) { return null; }
+}
+
+// ============================================================
+// i18n
+// ============================================================
+const I18N = {
+  'phase-select':  { en: 'Choose Case',     zh: '選擇案例' },
+  'phase-score':   { en: 'Score',           zh: '評分' },
+  'phase-stress':  { en: 'Stress-test',     zh: '交叉檢驗' },
+  'phase-report':  { en: 'Report',          zh: '報告' },
+};
+function t(key) {
+  return (I18N[key] && I18N[key][state.lang]) || key;
+}
+
+// ============================================================
+// Render
+// ============================================================
+function render() {
+  // Update phase tabs
+  document.querySelectorAll('.phase-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.phase === state.phase);
+  });
+  // Translate tab labels
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  if (state.phase === 'select') renderSelect(main);
+  else if (state.phase === 'score') renderScore(main);
+  else if (state.phase === 'stress') renderStress(main);
+  else if (state.phase === 'report') renderReport(main);
+
+  // Update subtitle text per language
+  document.getElementById('subtitle').textContent =
+    state.lang === 'zh'
+      ? ' · 對對練習 · 產業政策作為國力'
+      : ' · Pair Exercise · Industrial Policy as National Power';
+}
+
+function renderSelect(main) {
+  const isZh = state.lang === 'zh';
+  main.innerHTML = `
+    <div class="welcome-card fade-in">
+      <h2>${isZh ? '選一個案例,跑一次五準則' : 'Pick a case, run the five criteria'}</h2>
+      <p>${isZh
+        ? '本練習對應 Week 8 §5 課後作業（國家產業政策盤點）的核心動作。每對選一個案例，用 GVC/GPN 五準則框架打分（1-5）並寫出證據。15 分鐘評分，5 分鐘和另一對交叉檢驗，5 分鐘全班輪流報告「我們最弱的一項評分」。'
+        : 'This exercise rehearses the core analytic move of the Week 8 take-home (national industrial-policy audit). Each pair picks a case, scores it 1-5 on the five-criterion GVC/GPN rubric with cited evidence. 15 min scoring, 5 min cross-pair stress-test, 5 min open-floor reporting on "our weakest score and why."'}</p>
+      <div class="features">
+        <div class="feature-item"><strong>${isZh ? '15 分鐘' : '15 min'}</strong><small>${isZh ? '對對評分,寫證據' : 'Score with cited evidence'}</small></div>
+        <div class="feature-item"><strong>${isZh ? '5 分鐘' : '5 min'}</strong><small>${isZh ? '交換 URL,挑戰對方評分' : 'Swap URLs, stress-test scores'}</small></div>
+        <div class="feature-item"><strong>${isZh ? '5 分鐘' : '5 min'}</strong><small>${isZh ? '輪流 1 分鐘:最弱項目為何' : '1-min open-floor reports'}</small></div>
+      </div>
+      <p style="margin-top: 1.25rem;"><strong>${isZh ? '你這對的代號:' : 'Your pair ID:'}</strong>
+        <code style="background:var(--cream);padding:.25rem .5rem;border-radius:3px;font-family:'SF Mono',Menlo,monospace">${state.pairId}</code>
+        <button class="btn" style="margin-left:.5rem" onclick="resetPairId()">${isZh ? '換一組代號' : 'Regenerate'}</button>
+      </p>
+    </div>
+    <h3 style="color:var(--navy); margin-top:1.5rem;">${isZh ? '六個案例' : 'Six contemporary cases'}</h3>
+    <div class="case-grid">
+      ${CASES.map(c => `
+        <div class="case-card ${c.id === state.caseId ? 'selected' : ''}" onclick="pickCase('${c.id}')">
+          <div class="country">${c.country.split(' · ')[0]} <span class="country-zh">· ${c.country.split(' · ')[1] || ''}</span></div>
+          <h3>${c.title}</h3>
+          <div class="title-zh">${c.titleZh}</div>
+          <div class="subtitle">${c.subtitle}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderScore(main) {
+  const c = CASES.find(x => x.id === state.caseId);
+  if (!c) {
+    main.innerHTML = '<div class="notice error">No case selected. Click "Choose Case" tab.</div>';
+    return;
+  }
+  const isZh = state.lang === 'zh';
+  main.innerHTML = `
+    <div class="workspace fade-in">
+      <div class="case-panel">
+        ${renderCaseDetail(c, isZh)}
+      </div>
+      <div>
+        <div class="scoring-panel">
+          <h3>${isZh ? '五準則評分' : 'Five-Criterion Scoring'}
+            <span class="pair-id">${state.pairId}</span>
+          </h3>
+          <p style="font-size:.85rem;color:var(--ink-soft);margin-top:0">
+            ${isZh ? '為每項準則打 1-5 分,並寫一句評分理由(引證據)。' : 'Score each criterion 1-5, then write one sentence of justification (cite evidence).'}
+          </p>
+          ${RUBRIC.map(r => renderCriterionBlock(r, isZh)).join('')}
+        </div>
+        <div class="radar-card">
+          <h3>${isZh ? '雷達圖' : 'Radar Chart'}</h3>
+          <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+          <div class="summary-stats">
+            <div class="stat"><div class="num" id="avgScore">–</div><div class="lbl">${isZh ? '平均' : 'Avg'}</div></div>
+            <div class="stat"><div class="num" id="completedScores">0/5</div><div class="lbl">${isZh ? '完成' : 'Done'}</div></div>
+            <div class="stat"><div class="num" id="justifiedCount">0/5</div><div class="lbl">${isZh ? '附證據' : 'Justified'}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <div class="left">
+        <button class="btn" onclick="goPhase('select')">← ${isZh ? '換案例' : 'Change Case'}</button>
+        <button class="btn" onclick="resetScores()">${isZh ? '清除評分' : 'Reset Scores'}</button>
+      </div>
+      <div class="right">
+        <button class="btn" onclick="exportJSON()">${isZh ? '匯出 JSON' : 'Export JSON'}</button>
+        <button class="btn primary" onclick="finishScoring()">${isZh ? '完成評分 →' : 'Done Scoring →'}</button>
+      </div>
+    </div>
+  `;
+  setTimeout(() => { drawRadar('radarChart', false); updateStats(); }, 50);
+}
+
+function renderCaseDetail(c, isZh) {
+  return `
+    <h2>${c.title}</h2>
+    <h2 class="zh">${c.titleZh}</h2>
+    <div class="case-meta">
+      <span><strong>${isZh ? '國家' : 'Country'}:</strong> ${c.country}</span>
+      <span><strong>${isZh ? '啟動' : 'Launched'}:</strong> ${c.launched}</span>
+    </div>
+
+    <section>
+      <h4>${isZh ? '政策摘要' : 'Policy Summary'}</h4>
+      <div class="summary">${c.summary}</div>
+      <div class="summary zh">${c.summaryZh}</div>
+    </section>
+
+    <section>
+      <h4>${isZh ? '目標' : 'Goal'}</h4>
+      <div style="font-style:italic;color:var(--navy);font-weight:500">${c.goal}</div>
+    </section>
+
+    <section>
+      <h4>${isZh ? '預算與工具' : 'Budget & Instruments'}</h4>
+      <div style="font-weight:600;margin-bottom:.35rem">${c.budget.headline}</div>
+      <ul class="instrument-list">
+        ${c.budget.instruments.map(i => `<li>${i}</li>`).join('')}
+      </ul>
+    </section>
+
+    <section>
+      <h4>${isZh ? '關鍵績效指標' : 'KPIs'}</h4>
+      <ul class="kpi-list">
+        ${c.kpi.map(k => `<li>${k}</li>`).join('')}
+      </ul>
+    </section>
+
+    <section>
+      <h4>${isZh ? '主要行為者' : 'Key Firms / Actors'}</h4>
+      <ul class="firm-list">
+        ${c.keyFirms.map(f => `<li>${f}</li>`).join('')}
+      </ul>
+    </section>
+
+    <section>
+      <h4>${isZh ? '時程' : 'Timeline'}</h4>
+      ${c.timeline.map(t => `
+        <div class="timeline-item">
+          <div class="yr">${t.year}</div>
+          <div>${t.event}</div>
+        </div>
+      `).join('')}
+    </section>
+
+    <section>
+      <h4>${isZh ? '外部評論(三派/中性)' : 'External Commentaries (three schools / neutral)'}</h4>
+      ${c.commentaries.map(co => `
+        <div class="commentary" data-stance="${co.stance}">
+          "${co.text}"
+          <div class="source">
+            <span>— ${co.source}</span>
+            <span class="stance-tag">${co.stance}</span>
+          </div>
+        </div>
+      `).join('')}
+    </section>
+  `;
+}
+
+function renderCriterionBlock(r, isZh) {
+  const score = state.scores[r.id];
+  const just = state.justifications[r.id] || '';
+  return `
+    <div class="criterion-block">
+      <div class="crit-title">${r.title}</div>
+      <div class="crit-title zh">${r.titleZh}</div>
+      <div class="crit-desc">${isZh ? r.descriptionZh : r.description}</div>
+      <div class="score-row">
+        <label>${isZh ? '分數' : 'Score'}:</label>
+        <div class="verdict">
+          ${[1,2,3,4,5].map(n => `
+            <button class="${score === n ? 'active' : ''}" onclick="setScore('${r.id}', ${n})">${n}</button>
+          `).join('')}
+        </div>
+        <span class="score-help">${isZh ? '(1=最弱, 5=最強)' : '(1=weakest, 5=strongest)'}</span>
+      </div>
+      <div class="crit-question">${isZh ? r.questionZh : r.question}</div>
+      <textarea
+        placeholder="${isZh ? '寫出評分理由,引一個具體證據(數字、案例、引文)' : 'Justify your score with one specific piece of evidence (number, case, quote)'}"
+        oninput="setJustification('${r.id}', this.value)">${just}</textarea>
+    </div>
+  `;
+}
+
+function renderStress(main) {
+  const isZh = state.lang === 'zh';
+  if (!state.otherPair) {
+    main.innerHTML = `
+      <div class="welcome-card fade-in">
+        <h2>${isZh ? '交叉檢驗階段' : 'Stress-test phase'}</h2>
+        <p>${isZh
+          ? '在這個階段,你和另一對交換評分結果,挑戰對方的評分。三步:'
+          : 'In this phase, you swap scores with another pair and challenge their scoring. Three steps:'}</p>
+        <ol>
+          <li>${isZh ? '把你的「分享連結」傳給另一對(Slack、LINE、Email 都可以)' : 'Send your share link to another pair (Slack, Discord, email — anything)'}</li>
+          <li>${isZh ? '同時,把對方的連結貼到下方' : 'Meanwhile, paste their share link in the input below'}</li>
+          <li>${isZh ? '看到對方評分後,逐項挑戰:證據夠強嗎?反事實呢?' : 'Once you see their scores, challenge each: is the evidence strong enough? What about the counterfactual?'}</li>
+        </ol>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.25rem">
+          <div>
+            <h4 style="color:var(--navy)">${isZh ? '你的分享連結' : 'Your share link'}</h4>
+            <input type="text" id="myShareLink" readonly value="${generateShareUrl()}"
+              style="width:100%;padding:.6rem;border:1px solid var(--border);border-radius:4px;font-family:'SF Mono',Menlo,monospace;font-size:.78rem"
+              onclick="this.select()">
+            <div style="display:flex;gap:.5rem;margin-top:.5rem">
+              <button class="btn primary" onclick="copyShareLink()">${isZh ? '複製連結' : 'Copy link'}</button>
+              <button class="btn" onclick="showShareCode()">${isZh ? '顯示短碼' : 'Show share code'}</button>
+            </div>
+          </div>
+          <div>
+            <h4 style="color:var(--red)">${isZh ? '對方的連結 / 短碼' : 'Their share link / code'}</h4>
+            <textarea id="otherInput" placeholder="${isZh ? '貼上對方的連結或短碼' : 'Paste their share link or code'}" style="width:100%;height:80px;padding:.5rem;border:1px solid var(--border);border-radius:4px;font-family:'SF Mono',Menlo,monospace;font-size:.78rem"></textarea>
+            <div style="display:flex;gap:.5rem;margin-top:.5rem">
+              <button class="btn primary" onclick="loadOtherPair()">${isZh ? '載入對方評分' : 'Load their scores'}</button>
+              <button class="btn" onclick="loadFileImport()">${isZh ? '從檔案載入' : 'Import file'}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="action-bar">
+        <div class="left"><button class="btn" onclick="goPhase('score')">← ${isZh ? '回去評分' : 'Back to Scoring'}</button></div>
+        <div class="right"><button class="btn disabled">${isZh ? '請先載入對方資料 →' : 'Load their scores first →'}</button></div>
+      </div>
+    `;
+    return;
+  }
+
+  // Have other pair data — show side-by-side comparison
+  const other = state.otherPair;
+  const c = CASES.find(x => x.id === other.caseId);
+  if (!c) {
+    main.innerHTML = '<div class="notice error">Other pair selected a different case. Verify first.</div>';
+    return;
+  }
+  const sameCase = c.id === state.caseId;
+
+  main.innerHTML = `
+    <div class="welcome-card fade-in" style="padding:1rem 1.5rem">
+      <h2 style="margin:0;font-size:1.25rem">${isZh ? '正在檢驗' : 'Stress-testing'} <span class="other-pair-id">${other.pairId}</span></h2>
+      <p style="margin:.35rem 0 0;color:var(--ink-soft)">${isZh ? '案例' : 'Case'}: <strong>${c.title}</strong>${!sameCase ? ` <em>(different from your case)</em>` : ''}</p>
+    </div>
+
+    <div class="workspace">
+      <div class="stress-test-side">
+        <h3 style="margin-top:0;color:var(--navy)">${isZh ? '對方的評分' : 'Their scores'}</h3>
+        ${RUBRIC.map(r => {
+          const sc = other.scores[r.id];
+          const ju = other.justifications[r.id] || '';
+          const myCritique = state.critiques[r.id] || '';
+          return `
+            <div style="margin:1rem 0;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+              <div style="font-weight:700;color:var(--navy)">${r.title}</div>
+              <div class="compare-row">
+                <div class="num-display">${sc || '–'}</div>
+                <div style="font-size:.88rem;color:var(--ink)">${ju || '<em style="color:var(--ink-soft)">No justification provided</em>'}</div>
+              </div>
+              <textarea class="critique-input" placeholder="${isZh ? '挑戰他們:證據弱嗎?分數高嗎?有反事實嗎?' : 'Challenge them: weak evidence? Too high a score? What about the counterfactual?'}"
+                oninput="setCritique('${r.id}', this.value)">${myCritique}</textarea>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="radar-card compare">
+        <h3>${isZh ? '對照雷達圖' : 'Compare Radar'}</h3>
+        <div class="chart-wrap"><canvas id="compareRadar"></canvas></div>
+        <div class="summary-stats">
+          <div class="stat">
+            <div class="num">${avg(state.scores)}</div>
+            <div class="lbl">${isZh ? '你的平均' : 'Your avg'}</div>
+          </div>
+          <div class="stat">
+            <div class="num">${avg(other.scores)}</div>
+            <div class="lbl">${isZh ? '對方平均' : 'Their avg'}</div>
+          </div>
+          <div class="stat">
+            <div class="num">${maxDiff(state.scores, other.scores)}</div>
+            <div class="lbl">${isZh ? '最大差距' : 'Max gap'}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <div class="left">
+        <button class="btn" onclick="goPhase('score')">← ${isZh ? '回去評分' : 'Back to Scoring'}</button>
+        <button class="btn danger" onclick="state.otherPair=null;state.critiques={};render()">${isZh ? '換另一對' : 'Pair with another'}</button>
+      </div>
+      <div class="right">
+        <button class="btn primary" onclick="goPhase('report')">${isZh ? '前往報告 →' : 'Go to Report →'}</button>
+      </div>
+    </div>
+  `;
+  setTimeout(() => drawCompareRadar('compareRadar'), 50);
+}
+
+function renderReport(main) {
+  const isZh = state.lang === 'zh';
+  const c = CASES.find(x => x.id === state.caseId);
+  if (!c) {
+    main.innerHTML = '<div class="notice error">No case selected.</div>';
+    return;
+  }
+  const myAvg = avg(state.scores);
+  const myWeakest = state.weakest || findLowestScore();
+
+  const weakestRubric = RUBRIC.find(r => r.id === myWeakest);
+  const weakestScore = state.scores[myWeakest];
+  const weakestJust = state.justifications[myWeakest] || '';
+
+  main.innerHTML = `
+    <div class="welcome-card fade-in">
+      <h2>${isZh ? '一分鐘報告腳本' : 'One-Minute Report Script'}</h2>
+      <p>${isZh
+        ? '輪到你的時候,把這段話念出來(或用自己的話講)。重點是:評分本身、你的證據、最弱的那項為何。'
+        : 'When called on, read this script aloud (or paraphrase). The focus is: your scores, your evidence, and which criterion is your weakest and why.'}</p>
+
+      <h4 style="margin-top:1.5rem">${isZh ? '挑出你們最弱的那一項' : 'Pick your weakest criterion'}</h4>
+      <div class="weakest-pick">
+        ${RUBRIC.map(r => `
+          <button class="${myWeakest === r.id ? 'selected' : ''}" onclick="setWeakest('${r.id}')">
+            ${r.title} (${state.scores[r.id] || '–'})
+          </button>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h2>${isZh ? '報告腳本' : 'Report Script'}</h2>
+      <div class="report-script">
+        <div style="margin-bottom:.5rem"><strong>${isZh ? '我們是 ' : 'We are pair '}<span class="highlight">${state.pairId}</span></strong>, ${isZh ? '我們選的案例是 ' : 'and our case is '}<strong>${c.title}</strong>.</div>
+
+        <div style="margin-bottom:.5rem">${isZh ? '我們的整體平均分數是 ' : 'Our overall average score is '}<span class="highlight">${myAvg}/5</span>. ${isZh ? '五項分別是:' : 'The five scores are:'} ${RUBRIC.map(r => `${r.title.split(' ')[1] || r.title} = ${state.scores[r.id] || '–'}`).join(', ')}.</div>
+
+        ${weakestRubric ? `
+          <div style="margin-bottom:.5rem">${isZh ? '我們最弱的一項是 ' : 'Our weakest score is on '}<strong>${weakestRubric.title}</strong> (<span class="highlight">${weakestScore || '–'}/5</span>).</div>
+
+          <div style="margin-bottom:.5rem">${isZh ? '為何弱?因為 ' : 'Why weak? Because '}<em>${weakestJust || (isZh ? '我們找不到夠強的證據來支撐更高的分數。' : 'we could not find strong enough evidence to support a higher score.')}</em></div>
+
+          ${state.otherPair ? `
+            <div style="margin-bottom:.5rem">${isZh ? '另一對(' : 'The other pair ('}<span class="highlight">${state.otherPair.pairId}</span>${isZh ? ')在這項給了 ' : ') gave this criterion '}${state.otherPair.scores[myWeakest] || '–'}/5${isZh ? ',他們挑戰我們的部分是:' : ', and their critique was:'} <em>${state.critiques[myWeakest] || (isZh ? '(沒有具體挑戰)' : '(no specific critique)')}</em></div>
+          ` : ''}
+
+          <div>${isZh ? '我們本來會給更高分,如果有更好的反事實證據——也就是,如果我們能驗證:' : 'We would have given a higher score with better counterfactual evidence — specifically if we could verify:'} <em>${weakestRubric.question}</em></div>
+        ` : '<div>(Pick a weakest criterion above to generate the script.)</div>'}
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h2>${isZh ? '完整評分一覽' : 'Full Score Summary'}</h2>
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:var(--cream)">
+            <th style="padding:.5rem;text-align:left;border-bottom:2px solid var(--border)">${isZh ? '準則' : 'Criterion'}</th>
+            <th style="padding:.5rem;text-align:center;border-bottom:2px solid var(--border)">${isZh ? '分數' : 'Score'}</th>
+            <th style="padding:.5rem;text-align:left;border-bottom:2px solid var(--border)">${isZh ? '證據' : 'Justification'}</th>
+            ${state.otherPair ? `<th style="padding:.5rem;text-align:center;border-bottom:2px solid var(--border)">${isZh ? '對方' : 'Other'}</th>` : ''}
+          </tr>
+        </thead>
+        <tbody>
+          ${RUBRIC.map(r => `
+            <tr ${myWeakest === r.id ? 'style="background:#FFF3D6"' : ''}>
+              <td style="padding:.5rem;border-bottom:1px solid var(--border)">${r.title}</td>
+              <td style="padding:.5rem;text-align:center;border-bottom:1px solid var(--border);font-weight:700;color:var(--navy)">${state.scores[r.id] || '–'}</td>
+              <td style="padding:.5rem;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--ink-soft)">${state.justifications[r.id] || '<em>—</em>'}</td>
+              ${state.otherPair ? `<td style="padding:.5rem;text-align:center;border-bottom:1px solid var(--border);color:var(--red);font-weight:600">${state.otherPair.scores[r.id] || '–'}</td>` : ''}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="action-bar">
+      <div class="left">
+        <button class="btn" onclick="goPhase('stress')">← ${isZh ? '回去檢驗' : 'Back to Stress-test'}</button>
+      </div>
+      <div class="right">
+        <button class="btn" onclick="exportJSON()">${isZh ? '匯出我的紀錄' : 'Export my record'}</button>
+        <button class="btn primary" onclick="printReport()">${isZh ? '列印 / 存 PDF' : 'Print / Save PDF'}</button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// Actions
+// ============================================================
+function pickCase(id) {
+  state.caseId = id;
+  // Restore saved state for this case if any
+  const saved = loadLocal(id);
+  if (saved) {
+    state.scores = saved.scores || {};
+    state.justifications = saved.justifications || {};
+    state.weakest = saved.weakest || null;
+  } else {
+    state.scores = {}; state.justifications = {}; state.weakest = null;
+  }
+  state.phase = 'score';
+  render();
+}
+
+function setScore(critId, n) {
+  state.scores[critId] = n;
+  saveLocal();
+  document.querySelectorAll(`.criterion-block`).forEach(b => {
+    // re-render just verdict buttons within this block
+  });
+  // Quick-update buttons by re-rendering only that block via direct dom manipulation:
+  const blocks = document.querySelectorAll('.criterion-block');
+  blocks.forEach((blk, idx) => {
+    const r = RUBRIC[idx];
+    if (r && r.id === critId) {
+      blk.querySelectorAll('.verdict button').forEach((b, i) => {
+        b.classList.toggle('active', (i + 1) === n);
+      });
+    }
+  });
+  drawRadar('radarChart', false);
+  updateStats();
+}
+
+function setJustification(critId, text) {
+  state.justifications[critId] = text;
+  saveLocal();
+  updateStats();
+}
+
+function setWeakest(critId) {
+  state.weakest = critId;
+  saveLocal();
+  render();
+}
+
+function setCritique(critId, text) {
+  state.critiques[critId] = text;
+}
+
+function resetScores() {
+  if (!confirm('Clear all scores and justifications for this case?')) return;
+  state.scores = {}; state.justifications = {}; state.weakest = null;
+  saveLocal();
+  render();
+}
+
+function resetPairId() {
+  state.pairId = generatePairId();
+  localStorage.setItem('w8_pairId', state.pairId);
+  render();
+}
+
+function finishScoring() {
+  const completed = Object.keys(state.scores).length;
+  if (completed < 5) {
+    if (!confirm(`Only ${completed}/5 criteria scored. Continue to stress-test anyway?`)) return;
+  }
+  goPhase('stress');
+}
+
+function goPhase(p) {
+  state.phase = p;
+  render();
+}
+
+// ============================================================
+// Stats / charts
+// ============================================================
+function avg(scores) {
+  const vals = Object.values(scores).filter(x => typeof x === 'number');
+  if (vals.length === 0) return '–';
+  return (vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1);
+}
+
+function maxDiff(s1, s2) {
+  let max = 0;
+  RUBRIC.forEach(r => {
+    if (s1[r.id] && s2[r.id]) {
+      max = Math.max(max, Math.abs(s1[r.id] - s2[r.id]));
+    }
+  });
+  return max;
+}
+
+function findLowestScore() {
+  let lowest = null; let lowestVal = 6;
+  RUBRIC.forEach(r => {
+    if (state.scores[r.id] && state.scores[r.id] < lowestVal) {
+      lowest = r.id; lowestVal = state.scores[r.id];
+    }
+  });
+  return lowest;
+}
+
+function updateStats() {
+  const completed = Object.keys(state.scores).length;
+  const justified = Object.values(state.justifications).filter(t => t && t.trim().length > 5).length;
+  const aE = document.getElementById('avgScore');
+  const cE = document.getElementById('completedScores');
+  const jE = document.getElementById('justifiedCount');
+  if (aE) aE.textContent = avg(state.scores);
+  if (cE) cE.textContent = `${completed}/5`;
+  if (jE) jE.textContent = `${justified}/5`;
+}
+
+let charts = {};
+function drawRadar(canvasId, comparing) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (typeof Chart === 'undefined') {
+    canvas.parentElement.innerHTML = '<div style="text-align:center;color:var(--ink-soft);padding:2rem;font-size:.85rem">Chart library could not load. Your scores are still saved and the report will work.</div>';
+    return;
+  }
+  const labels = RUBRIC.map(r => r.title.replace(/^\d+\.\s*/, ''));
+  const data = RUBRIC.map(r => state.scores[r.id] || 0);
+
+  if (charts[canvasId]) charts[canvasId].destroy();
+
+  const datasets = [{
+    label: state.pairId,
+    data: data,
+    backgroundColor: 'rgba(30, 39, 97, 0.18)',
+    borderColor: '#1E2761',
+    borderWidth: 2.5,
+    pointBackgroundColor: '#1E2761',
+    pointRadius: 4,
+  }];
+
+  charts[canvasId] = new Chart(canvas, {
+    type: 'radar',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: {
+        min: 0, max: 5, ticks: { stepSize: 1, font: { size: 10 } },
+        pointLabels: { font: { size: 11 } },
+        grid: { color: 'rgba(0,0,0,.08)' },
+      } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function drawCompareRadar(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (typeof Chart === 'undefined') {
+    canvas.parentElement.innerHTML = '<div style="text-align:center;color:var(--ink-soft);padding:2rem;font-size:.85rem">Chart library could not load. Numeric comparison still works in the table below.</div>';
+    return;
+  }
+  const labels = RUBRIC.map(r => r.title.replace(/^\d+\.\s*/, ''));
+  const my = RUBRIC.map(r => state.scores[r.id] || 0);
+  const other = RUBRIC.map(r => (state.otherPair && state.otherPair.scores[r.id]) || 0);
+
+  if (charts[canvasId]) charts[canvasId].destroy();
+
+  charts[canvasId] = new Chart(canvas, {
+    type: 'radar',
+    data: { labels, datasets: [
+      { label: state.pairId,
+        data: my,
+        backgroundColor: 'rgba(30, 39, 97, 0.15)',
+        borderColor: '#1E2761',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#1E2761',
+        pointRadius: 4,
+      },
+      { label: state.otherPair.pairId,
+        data: other,
+        backgroundColor: 'rgba(178, 58, 72, 0.15)',
+        borderColor: '#B23A48',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#B23A48',
+        pointRadius: 4,
+        borderDash: [5, 4],
+      }
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, font: { size: 10 } }, pointLabels: { font: { size: 11 } } } },
+      plugins: { legend: { display: true, position: 'bottom' } }
+    }
+  });
+}
+
+// ============================================================
+// Sharing
+// ============================================================
+function generateShareUrl() {
+  const payload = {
+    v: 1,
+    pairId: state.pairId,
+    caseId: state.caseId,
+    scores: state.scores,
+    justifications: state.justifications,
+  };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const baseUrl = location.origin + location.pathname;
+  return baseUrl + '#share=' + encoded;
+}
+
+function copyShareLink() {
+  const url = generateShareUrl();
+  navigator.clipboard.writeText(url).then(() => {
+    showNotice(state.lang === 'zh' ? '連結已複製,傳給另一對。' : 'Link copied — send to another pair.', 'success');
+  }).catch(() => {
+    prompt('Copy this:', url);
+  });
+}
+
+function showShareCode() {
+  const payload = {
+    v: 1, pairId: state.pairId, caseId: state.caseId,
+    scores: state.scores, justifications: state.justifications,
+  };
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  showModal({
+    title: state.lang === 'zh' ? '分享短碼' : 'Share Code',
+    body: `<p>${state.lang === 'zh' ? '把下面這段文字傳給對方,他們貼進來就能看到你的評分。' : 'Send this code to the other pair; they paste it in to see your scores.'}</p>
+      <textarea class="share-code" readonly>${code}</textarea>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">${state.lang === 'zh' ? '關閉' : 'Close'}</button>
+        <button class="btn primary" onclick="navigator.clipboard.writeText('${code}'); closeModal(); showNotice('${state.lang === 'zh' ? '已複製。' : 'Copied.'}', 'success')">${state.lang === 'zh' ? '複製' : 'Copy'}</button>
+      </div>`
+  });
+}
+
+function loadOtherPair() {
+  const input = document.getElementById('otherInput').value.trim();
+  if (!input) {
+    showNotice('Paste a share link or code first.', 'error'); return;
+  }
+  // Extract code from URL or use as-is
+  let code = input;
+  const m = input.match(/#share=([^&\s]+)/);
+  if (m) code = m[1];
+
+  try {
+    const decoded = decodeURIComponent(escape(atob(code)));
+    const payload = JSON.parse(decoded);
+    if (!payload.scores || !payload.pairId) throw new Error('Invalid payload');
+    state.otherPair = payload;
+    state.critiques = {};
+    render();
+  } catch(e) {
+    showNotice(state.lang === 'zh' ? '解碼失敗,請檢查連結是否完整。' : 'Decode failed — check the link is complete.', 'error');
+  }
+}
+
+function loadFileImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = (ev) => {
+      try {
+        const payload = JSON.parse(ev.target.result);
+        if (!payload.scores || !payload.pairId) throw new Error('Invalid');
+        state.otherPair = payload;
+        state.critiques = {};
+        render();
+      } catch(err) {
+        showNotice('Invalid JSON file.', 'error');
+      }
+    };
+    r.readAsText(f);
+  };
+  input.click();
+}
+
+function exportJSON() {
+  const payload = {
+    v: 1,
+    pairId: state.pairId,
+    caseId: state.caseId,
+    caseTitle: (CASES.find(c => c.id === state.caseId) || {}).title,
+    scores: state.scores,
+    justifications: state.justifications,
+    weakest: state.weakest,
+    timestamp: new Date().toISOString(),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `week8-rubric-${state.pairId}-${state.caseId}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function printReport() {
+  window.print();
+}
+
+// ============================================================
+// Modal
+// ============================================================
+function showModal({ title, body }) {
+  const c = document.getElementById('modalContainer');
+  c.innerHTML = `
+    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>${title}</h3>
+        ${body}
+      </div>
+    </div>
+  `;
+}
+function closeModal() {
+  document.getElementById('modalContainer').innerHTML = '';
+}
+
+function showNotice(text, type = 'success') {
+  const div = document.createElement('div');
+  div.className = `notice ${type}`;
+  div.style.cssText = 'position:fixed;top:5rem;right:1rem;z-index:300;max-width:320px;box-shadow:0 4px 12px rgba(0,0,0,.15);animation:fadeIn .25s';
+  div.innerHTML = `<strong>${type === 'success' ? '✓' : type === 'error' ? '✗' : 'i'}</strong> ${text}`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 3500);
+}
+
+// ============================================================
+// Timer
+// ============================================================
+function tickTimer() {
+  if (!state.timerRunning) return;
+  state.timerSec--;
+  updateTimerDisplay();
+  if (state.timerSec <= 0) {
+    state.timerRunning = false;
+    document.getElementById('timer').classList.add('warn');
+    showNotice(state.lang === 'zh' ? '時間到!' : 'Time is up!', 'error');
+  }
+}
+function updateTimerDisplay() {
+  const min = Math.floor(state.timerSec / 60);
+  const sec = state.timerSec % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+  el.classList.toggle('running', state.timerRunning);
+  el.classList.toggle('warn', state.timerSec <= 60 && state.timerSec > 0);
+}
+function toggleTimer() {
+  state.timerRunning = !state.timerRunning;
+  updateTimerDisplay();
+}
+function resetTimer() {
+  // Cycle through: 15min → 5min → 5min → 15min...
+  const presets = [15, 5, 5];
+  const cur = Math.round(state.timerSec / 60);
+  let nextIdx = presets.indexOf(cur) + 1;
+  if (nextIdx >= presets.length) nextIdx = 0;
+  state.timerSec = presets[nextIdx] * 60;
+  state.timerRunning = false;
+  updateTimerDisplay();
+  document.getElementById('timer').classList.remove('warn');
+}
+setInterval(tickTimer, 1000);
+
+document.getElementById('timer').addEventListener('click', toggleTimer);
+document.getElementById('timer').addEventListener('contextmenu', (e) => { e.preventDefault(); resetTimer(); });
+
+// ============================================================
+// Language toggle
+// ============================================================
+document.getElementById('langToggle').addEventListener('click', () => {
+  state.lang = (state.lang === 'en') ? 'zh' : 'en';
+  localStorage.setItem('w8_lang', state.lang);
+  render();
+});
+
+// ============================================================
+// Phase tab clicks
+// ============================================================
+document.querySelectorAll('.phase-tab').forEach(tab => {
+  tab.addEventListener('click', () => goPhase(tab.dataset.phase));
+});
+
+// ============================================================
+// URL hash on load — auto-load shared scores
+// ============================================================
+window.addEventListener('load', () => {
+  const m = location.hash.match(/^#share=(.+)/);
+  if (m) {
+    try {
+      const decoded = decodeURIComponent(escape(atob(m[1])));
+      const payload = JSON.parse(decoded);
+      if (payload.scores && payload.pairId) {
+        // Ask: are you the original author or another pair?
+        if (confirm(`Share link detected from pair "${payload.pairId}". Load as their scores for stress-testing? (Cancel = load as your own scores)`)) {
+          state.otherPair = payload;
+          state.caseId = payload.caseId; // ensure same case shown
+          state.phase = 'stress';
+        } else {
+          // Load as own
+          state.caseId = payload.caseId;
+          state.scores = payload.scores;
+          state.justifications = payload.justifications || {};
+          state.weakest = payload.weakest || null;
+          state.phase = 'score';
+        }
+        history.replaceState(null, '', location.pathname);
+      }
+    } catch(e) { console.error('Failed to load share link:', e); }
+  }
+  render();
+});
+
+// First render
+render();
+</script>
+</body>
+</html>
