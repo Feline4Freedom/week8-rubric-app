@@ -443,6 +443,50 @@ const state = {
 };
 localStorage.setItem('w8_pairId', state.pairId);
 
+// ============================================================
+// Instructor submission (Google Form prefill integration)
+// ============================================================
+const INSTRUCTOR_FORM = {
+  // Form ID from the public viewform URL — leave null to disable Submit feature
+  formId: '1FAIpQLSdaGwY0s3b0Z__Cfglq1lnYMooKaBbVcydzYMzgHibRe2iM9Q',
+  fields: {
+    pairId:         '1257774725',
+    case:           '1022347994',
+    scores:         '340143259',
+    justifications: '121915188',
+    weakest:        '1923379842'
+  }
+};
+
+function submitToInstructor() {
+  if (!INSTRUCTOR_FORM.formId) {
+    showNotice('Instructor form not configured. Edit INSTRUCTOR_FORM in index.html.', 'error');
+    return;
+  }
+  const c = CASES.find(x => x.id === state.caseId);
+  if (!c) {
+    showNotice(state.lang === 'zh' ? '請先選擇案例並完成評分。' : 'Pick a case and score it first.', 'error');
+    return;
+  }
+  const completed = Object.keys(state.scores).length;
+  if (completed === 0) {
+    showNotice(state.lang === 'zh' ? '尚未開始評分。' : 'No scores yet — fill in the rubric first.', 'error');
+    return;
+  }
+  const params = new URLSearchParams();
+  params.set('usp', 'pp_url');
+  params.set('entry.' + INSTRUCTOR_FORM.fields.pairId, state.pairId);
+  params.set('entry.' + INSTRUCTOR_FORM.fields.case, c.title);
+  params.set('entry.' + INSTRUCTOR_FORM.fields.scores, JSON.stringify(state.scores));
+  params.set('entry.' + INSTRUCTOR_FORM.fields.justifications, JSON.stringify(state.justifications));
+  params.set('entry.' + INSTRUCTOR_FORM.fields.weakest, state.weakest || findLowestScore() || '');
+  const url = 'https://docs.google.com/forms/d/e/' + INSTRUCTOR_FORM.formId + '/viewform?' + params.toString();
+  window.open(url, '_blank');
+  showNotice(state.lang === 'zh'
+    ? '✅ Google Form 已在新分頁開啟,所有資料已自動填好。請在 Form 上按 Submit 寄出。'
+    : '✅ Google Form opened in new tab — all data prefilled. Click Submit on the form to send.', 'success');
+}
+
 function generatePairId() {
   return 'P-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 }
@@ -860,13 +904,29 @@ function renderReport(main) {
       </table>
     </div>
 
+    ${INSTRUCTOR_FORM.formId ? `
+    <div class="report-card" style="background:linear-gradient(135deg,#fffaeb 0%,#fff3d6 100%);border:2px solid var(--gold)">
+      <h2 style="margin-top:0">${isZh ? '📤 提交評分給教師' : '📤 Submit your scores to the instructor'}</h2>
+      <p style="margin-bottom:1rem">${isZh
+        ? '點下面的按鈕,Google Form 會在新分頁打開,你的配對代號、案例、五項評分、評語、最弱項全部已自動填好。你只需要在 Form 上按 Submit 即可。教師會在 Google Sheet 中即時看到你們這對的回覆。'
+        : 'Click the button below to open a Google Form in a new tab. Your pair ID, case, all five scores, justifications, and weakest criterion are pre-filled — you just need to click Submit on the form. The instructor receives your submission in a live Google Sheet.'}</p>
+      <button onclick="submitToInstructor()" style="background:var(--gold);color:var(--navy);border:none;padding:.85rem 2rem;font-size:1rem;font-weight:700;border-radius:6px;cursor:pointer;font-family:inherit;box-shadow:0 2px 6px rgba(255,184,0,.3);transition:transform .1s">
+        📤 ${isZh ? 'Submit to Instructor' : 'Submit to Instructor'}
+      </button>
+      <p style="font-size:.78rem;color:var(--ink-soft);margin-top:.75rem;margin-bottom:0">${isZh
+        ? '⓵ 確認你已經選好「最弱項目」(上方按鈕已標記紅色) ⓶ 按上方按鈕 ⓷ 在新分頁的 Form 上按 Submit'
+        : '⓵ Make sure you have picked your weakest criterion (highlighted above) ⓶ Click the gold button ⓷ Click Submit on the form in the new tab'}</p>
+    </div>
+    ` : ''}
+
     <div class="action-bar">
       <div class="left">
         <button class="btn" onclick="goPhase('stress')">← ${isZh ? '回去檢驗' : 'Back to Stress-test'}</button>
       </div>
       <div class="right">
         <button class="btn" onclick="exportJSON()">${isZh ? '匯出我的紀錄' : 'Export my record'}</button>
-        <button class="btn primary" onclick="printReport()">${isZh ? '列印 / 存 PDF' : 'Print / Save PDF'}</button>
+        <button class="btn" onclick="printReport()">${isZh ? '列印 / 存 PDF' : 'Print / Save PDF'}</button>
+        ${INSTRUCTOR_FORM.formId ? `<button class="btn gold" onclick="submitToInstructor()" style="font-weight:700">📤 ${isZh ? '提交' : 'Submit to Instructor'}</button>` : ''}
       </div>
     </div>
   `;
